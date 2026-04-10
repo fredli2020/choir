@@ -1,12 +1,13 @@
 # Choir App
 
-Choir App is a production-oriented choir management scaffold built as a modular monolith. The repository starts with a Django REST API, a Next.js web app, local PostgreSQL via Docker Compose, and enough project tooling to keep the first vertical slices clean.
+Choir App is a production-oriented choir management scaffold built as a modular monolith. The repository currently includes a Django REST API foundation for authentication, organizations, and centralized RBAC permissions, plus a Next.js web app that will consume that API.
 
 ## Stack
 
 - Backend: Django, Django REST Framework, PostgreSQL, pytest, Ruff, uv
 - Frontend: Next.js 15, TypeScript, Tailwind CSS, shadcn/ui, pnpm
 - Local infrastructure: Docker Compose for PostgreSQL
+- Frontend auth provider: Clerk
 
 ## Required Local Installs
 
@@ -48,25 +49,31 @@ Suggested install references:
    cp apps/web/.env.example apps/web/.env.local
    ```
 
-2. Start PostgreSQL:
+2. Fill in the Clerk backend auth settings in `apps/api/.env`:
+
+   ```env
+   CLERK_JWKS_URL=https://your-clerk-domain/.well-known/jwks.json
+   CLERK_ISSUER=https://your-clerk-domain
+   CLERK_AUDIENCE=
+   ```
+
+3. Start PostgreSQL:
 
    ```bash
    make db-up
    ```
 
-3. Install API dependencies:
+4. Install API dependencies:
 
    ```bash
    make api-install
    ```
 
-4. Install web dependencies:
+5. Install web dependencies:
 
    ```bash
    make web-install
    ```
-
-Because `uv` and `pnpm` were not available in the scaffolding environment, the lockfiles are generated when you run those install commands locally.
 
 ## Running The API
 
@@ -76,6 +83,12 @@ Apply migrations:
 make api-migrate
 ```
 
+Seed a sample organization with three sample users and roles:
+
+```bash
+cd apps/api && /home/fred/.local/bin/uv run python manage.py seed_sample_data --settings=config.settings.dev
+```
+
 Start the Django development server:
 
 ```bash
@@ -83,6 +96,24 @@ make api-dev
 ```
 
 The API runs on `http://127.0.0.1:8000`.
+
+### Auth Contract
+
+The frontend signs users in with Clerk and sends the Clerk session token to Django as a Bearer token.
+
+Example request headers:
+
+```http
+Authorization: Bearer <clerk-session-jwt>
+```
+
+Protected endpoints added in this milestone:
+
+- `GET /api/me`
+- `GET /api/me/organizations`
+- `GET /api/me/context?organization_id=<uuid>`
+- `GET /api/orgs/<org_id>/membership`
+- `GET /api/orgs/<org_id>/permissions`
 
 Health endpoints:
 
@@ -127,8 +158,19 @@ Run everything:
 make check
 ```
 
+## Auth Flow
+
+1. The user signs in through Clerk in the Next.js app.
+2. The Next.js app gets a Clerk session token from the client or server-side Clerk SDK.
+3. The web app calls Django with `Authorization: Bearer <token>`.
+4. Django verifies the JWT against Clerk JWKS and issuer configuration.
+5. Django creates or updates the local `User` identity record from Clerk claims.
+6. Django resolves `OrganizationMembership` for org-scoped routes and calculates centralized permissions.
+7. The API responds with current-user, org-context, and permission data the frontend can use.
+
 ## Notes
 
-- The repository is intentionally light on business modules in the first milestone.
-- Future multi-tenant concerns should be implemented in backend modules and policies, not in React components.
+- The repository is intentionally light on choir business modules beyond auth and org foundations in this milestone.
+- `User` is the login identity only. Future choir member records should live in a separate `MemberProfile`-style domain model.
+- Future multi-tenant concerns should be enforced in backend modules and policies, not in React components.
 - Google Calendar sync, payments, ticketing, and other deferred features are documented in [docs/roadmap.md](docs/roadmap.md).

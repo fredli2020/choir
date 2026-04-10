@@ -10,3 +10,6 @@ DATABASES = {
 PASSWORD_HASHERS = [
     "django.contrib.auth.hashers.MD5PasswordHasher",
 ]
+CLERK_JWKS_URL = "https://clerk.test/.well-known/jwks.json"
+CLERK_ISSUER = "https://clerk.test"
+CLERK_AUDIENCE = None

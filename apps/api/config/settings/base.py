@@ -3,13 +3,13 @@ from pathlib import Path
 import dj_database_url
 from dotenv import load_dotenv
 
-from apps.common.env import get_csv, get_env
+from apps.common.env import get_bool, get_csv, get_env, get_optional_env
 
 BASE_DIR = Path(__file__).resolve().parents[2]
 load_dotenv(BASE_DIR / ".env")
 
 SECRET_KEY = get_env("DJANGO_SECRET_KEY", "change-me")
-DEBUG = False
+DEBUG = get_bool("DJANGO_DEBUG", False)
 ALLOWED_HOSTS = get_csv("DJANGO_ALLOWED_HOSTS", ["127.0.0.1", "localhost"])
 
 INSTALLED_APPS = [
@@ -21,6 +21,10 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "apps.common",
+    "apps.core",
+    "apps.accounts",
+    "apps.organizations",
+    "apps.permissions",
     "apps.health",
 ]
 
@@ -77,8 +81,20 @@ STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+AUTH_USER_MODEL = "accounts.User"
+
+CLERK_JWKS_URL = get_optional_env("CLERK_JWKS_URL")
+CLERK_ISSUER = get_optional_env("CLERK_ISSUER")
+CLERK_AUDIENCE = get_optional_env("CLERK_AUDIENCE")
 
 REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "apps.accounts.authentication.ClerkJWTAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.AllowAny",
+    ],
     "DEFAULT_RENDERER_CLASSES": [
         "rest_framework.renderers.JSONRenderer",
     ],
