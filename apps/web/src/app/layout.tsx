@@ -1,16 +1,28 @@
 import type { Metadata } from "next";
-import { Space_Grotesk } from "next/font/google";
+import { Cormorant_Garamond, Manrope } from "next/font/google";
+
+import { AppProviders } from "@/components/app/providers";
+import { isClerkConfigured } from "@/lib/server-env";
 
 import "./globals.css";
 
-const spaceGrotesk = Space_Grotesk({
+const manrope = Manrope({
   subsets: ["latin"],
   display: "swap",
+  variable: "--font-sans",
+});
+
+const cormorantGaramond = Cormorant_Garamond({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-display",
+  weight: ["500", "600", "700"],
 });
 
 export const metadata: Metadata = {
   title: "Choir App",
-  description: "Choir management app scaffold.",
+  description:
+    "Modern choir operations software for organizations, members, events, and attendance.",
 };
 
 export default function RootLayout({
@@ -20,7 +32,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={spaceGrotesk.className}>{children}</body>
+      <body className={[manrope.variable, cormorantGaramond.variable].join(" ")}>
+        <AppProviders clerkEnabled={isClerkConfigured()}>{children}</AppProviders>
+      </body>
     </html>
   );
 }

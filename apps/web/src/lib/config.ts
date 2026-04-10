@@ -13,5 +13,8 @@ function readApiBaseUrl() {
 }
 
 export const appConfig = {
+  name: "Choir App",
   apiBaseUrl: readApiBaseUrl(),
+  signInUrl: "/sign-in",
+  signUpUrl: "/sign-up",
 };

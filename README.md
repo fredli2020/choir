@@ -57,19 +57,31 @@ Suggested install references:
    CLERK_AUDIENCE=
    ```
 
-3. Start PostgreSQL:
+3. Fill in the Clerk frontend auth settings in `apps/web/.env.local`:
+
+   ```env
+   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
+   CLERK_SECRET_KEY=
+   CLERK_JWT_TEMPLATE=
+   ```
+
+   Notes:
+   - `CLERK_JWT_TEMPLATE` is optional when Django accepts the default Clerk session token.
+   - If `CLERK_AUDIENCE` is set in `apps/api/.env`, create a Clerk JWT template with the same audience and set `CLERK_JWT_TEMPLATE` to that template name in `apps/web/.env.local`.
+
+4. Start PostgreSQL:
 
    ```bash
    make db-up
    ```
 
-4. Install API dependencies:
+5. Install API dependencies:
 
    ```bash
    make api-install
    ```
 
-5. Install web dependencies:
+6. Install web dependencies:
 
    ```bash
    make web-install
@@ -130,6 +142,18 @@ make web-dev
 
 The web app runs on `http://127.0.0.1:3000`.
 
+Primary frontend routes:
+
+- `/` landing page
+- `/sign-in` Clerk sign-in surface
+- `/sign-up` Clerk sign-up surface
+- `/app` authenticated app entry that resolves the current organization
+- `/app/<org_id>` organization dashboard
+- `/app/<org_id>/members` staff member records
+- `/app/<org_id>/directory` directory-safe member view
+- `/app/<org_id>/events` event and RSVP surface
+- `/app/<org_id>/profile` linked member profile surface
+
 ## Quality Checks
 
 Run backend tests:
@@ -161,8 +185,8 @@ make check
 ## Auth Flow
 
 1. The user signs in through Clerk in the Next.js app.
-2. The Next.js app gets a Clerk session token from the client or server-side Clerk SDK.
-3. The web app calls Django with `Authorization: Bearer <token>`.
+2. The Next.js app uses Clerk server helpers to mint a token for backend API calls.
+3. The web app calls Django with `Authorization: Bearer <token>` from server-rendered routes.
 4. Django verifies the JWT against Clerk JWKS and issuer configuration.
 5. Django creates or updates the local `User` identity record from Clerk claims.
 6. Django resolves `OrganizationMembership` for org-scoped routes and calculates centralized permissions.
