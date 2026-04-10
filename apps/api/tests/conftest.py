@@ -1,7 +1,11 @@
+from datetime import timedelta
+
 import pytest
+from django.utils import timezone
 from rest_framework.test import APIClient
 
 from apps.accounts.models import User
+from apps.events.models import Event, EventAudience
 from apps.members.models import Group, GroupMember, MemberProfile
 from apps.organizations.models import Organization, OrganizationMembership
 
@@ -19,6 +23,11 @@ def organization():
 @pytest.fixture
 def other_organization():
     return Organization.objects.create(name="Other Choir", slug="other-choir")
+
+
+@pytest.fixture
+def now():
+    return timezone.now().replace(microsecond=0)
 
 
 @pytest.fixture
@@ -175,6 +184,88 @@ def section_group(organization, section_leader_member_profile):
         description="Tenor singers",
     )
     GroupMember.objects.create(
-        group=group, member_profile=section_leader_member_profile, role="leader"
+        group=group,
+        member_profile=section_leader_member_profile,
+        role="leader",
     )
     return group
+
+
+@pytest.fixture
+def all_members_event(organization, admin_user, now):
+    event = Event.objects.create(
+        organization=organization,
+        title="Wednesday Rehearsal",
+        description="Full choir rehearsal",
+        type=Event.Type.REHEARSAL,
+        location="Choir Room",
+        start_at=now + timedelta(days=2),
+        end_at=now + timedelta(days=2, hours=2),
+        timezone="America/New_York",
+        is_all_day=False,
+        created_by_user=admin_user,
+    )
+    EventAudience.objects.create(
+        event=event,
+        audience_type=EventAudience.AudienceType.ALL_MEMBERS,
+    )
+    return event
+
+
+@pytest.fixture
+def section_event(organization, admin_user, now, section_group):
+    event = Event.objects.create(
+        organization=organization,
+        title="Tenor Sectional",
+        description="Focused sectional rehearsal",
+        type=Event.Type.REHEARSAL,
+        location="Practice Hall A",
+        start_at=now + timedelta(days=3),
+        end_at=now + timedelta(days=3, hours=1, minutes=30),
+        timezone="America/New_York",
+        is_all_day=False,
+        created_by_user=admin_user,
+    )
+    EventAudience.objects.create(
+        event=event,
+        audience_type=EventAudience.AudienceType.GROUP,
+        group=section_group,
+    )
+    return event
+
+
+@pytest.fixture
+def selected_members_event(
+    organization,
+    admin_user,
+    now,
+    member_profile,
+    unlinked_member_profile,
+):
+    event = Event.objects.create(
+        organization=organization,
+        title="Small Ensemble Call",
+        description="Extra ensemble prep",
+        type=Event.Type.PERFORMANCE,
+        location="Sanctuary",
+        start_at=now + timedelta(days=5),
+        end_at=now + timedelta(days=5, hours=2),
+        timezone="America/New_York",
+        is_all_day=False,
+        created_by_user=admin_user,
+    )
+    EventAudience.objects.bulk_create(
+        [
+            EventAudience(
+                event=event,
+                audience_type=EventAudience.AudienceType.SELECTED_MEMBERS,
+                member_profile=member_profile,
+            ),
+            EventAudience(
+                event=event,
+                audience_type=EventAudience.AudienceType.SELECTED_MEMBERS,
+                member_profile=unlinked_member_profile,
+            ),
+        ]
+    )
+    return event

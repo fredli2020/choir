@@ -9,6 +9,9 @@ ROLE_CAPABILITIES = {
         "can_manage_groups": True,
         "can_view_members": True,
         "can_manage_events": True,
+        "can_view_events": True,
+        "can_view_relevant_events": True,
+        "can_rsvp_to_events": True,
         "can_record_attendance": True,
         "can_send_messages": True,
         "can_manage_google_calendar": True,
@@ -19,7 +22,10 @@ ROLE_CAPABILITIES = {
         "can_manage_members": False,
         "can_manage_groups": False,
         "can_view_members": True,
-        "can_manage_events": True,
+        "can_manage_events": False,
+        "can_view_events": True,
+        "can_view_relevant_events": True,
+        "can_rsvp_to_events": True,
         "can_record_attendance": True,
         "can_send_messages": True,
         "can_manage_google_calendar": False,
@@ -31,6 +37,9 @@ ROLE_CAPABILITIES = {
         "can_manage_groups": False,
         "can_view_members": False,
         "can_manage_events": False,
+        "can_view_events": False,
+        "can_view_relevant_events": True,
+        "can_rsvp_to_events": True,
         "can_record_attendance": False,
         "can_send_messages": False,
         "can_manage_google_calendar": False,
@@ -44,6 +53,9 @@ EMPTY_CAPABILITIES = {
     "can_manage_groups": False,
     "can_view_members": False,
     "can_manage_events": False,
+    "can_view_events": False,
+    "can_view_relevant_events": False,
+    "can_rsvp_to_events": False,
     "can_record_attendance": False,
     "can_send_messages": False,
     "can_manage_google_calendar": False,
@@ -93,6 +105,18 @@ def can_manage_events(user, organization: Organization) -> bool:
     return has_capability(user, organization, "can_manage_events")
 
 
+def can_view_events(user, organization: Organization) -> bool:
+    return has_capability(user, organization, "can_view_events")
+
+
+def can_view_relevant_events(user, organization: Organization) -> bool:
+    return has_capability(user, organization, "can_view_relevant_events")
+
+
+def can_rsvp_to_events(user, organization: Organization) -> bool:
+    return has_capability(user, organization, "can_rsvp_to_events")
+
+
 def can_record_attendance(user, organization: Organization) -> bool:
     return has_capability(user, organization, "can_record_attendance")
 
@@ -137,6 +161,51 @@ def require_can_view_members(user, organization: Organization) -> None:
         organization,
         "can_view_members",
         "You cannot view member records in this organization.",
+    )
+
+
+def require_can_manage_events(user, organization: Organization) -> None:
+    require_capability(
+        user,
+        organization,
+        "can_manage_events",
+        "You cannot manage events in this organization.",
+    )
+
+
+def require_can_view_events(user, organization: Organization) -> None:
+    require_capability(
+        user,
+        organization,
+        "can_view_events",
+        "You cannot view all events in this organization.",
+    )
+
+
+def require_can_view_relevant_events(user, organization: Organization) -> None:
+    require_capability(
+        user,
+        organization,
+        "can_view_relevant_events",
+        "You cannot view relevant events in this organization.",
+    )
+
+
+def require_can_rsvp_to_events(user, organization: Organization) -> None:
+    require_capability(
+        user,
+        organization,
+        "can_rsvp_to_events",
+        "You cannot RSVP to events in this organization.",
+    )
+
+
+def require_can_record_attendance(user, organization: Organization) -> None:
+    require_capability(
+        user,
+        organization,
+        "can_record_attendance",
+        "You cannot record attendance in this organization.",
     )
 
 

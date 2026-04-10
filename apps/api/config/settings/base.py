@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     "apps.accounts",
     "apps.organizations",
     "apps.members",
+    "apps.events",
     "apps.permissions",
     "apps.health",
 ]
