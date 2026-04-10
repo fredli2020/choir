@@ -1,36 +1,54 @@
+from django.core.exceptions import PermissionDenied
+
 from apps.organizations.models import Organization, OrganizationMembership
 from apps.organizations.services import get_active_membership
 
 ROLE_CAPABILITIES = {
     OrganizationMembership.Role.ADMIN: {
         "can_manage_members": True,
+        "can_manage_groups": True,
+        "can_view_members": True,
         "can_manage_events": True,
         "can_record_attendance": True,
         "can_send_messages": True,
         "can_manage_google_calendar": True,
+        "can_view_directory": True,
+        "can_self_edit_profile": True,
     },
     OrganizationMembership.Role.SECTION_LEADER: {
-        "can_manage_members": True,
+        "can_manage_members": False,
+        "can_manage_groups": False,
+        "can_view_members": True,
         "can_manage_events": True,
         "can_record_attendance": True,
         "can_send_messages": True,
         "can_manage_google_calendar": False,
+        "can_view_directory": True,
+        "can_self_edit_profile": True,
     },
     OrganizationMembership.Role.MEMBER: {
         "can_manage_members": False,
+        "can_manage_groups": False,
+        "can_view_members": False,
         "can_manage_events": False,
         "can_record_attendance": False,
         "can_send_messages": False,
         "can_manage_google_calendar": False,
+        "can_view_directory": True,
+        "can_self_edit_profile": True,
     },
 }
 
 EMPTY_CAPABILITIES = {
     "can_manage_members": False,
+    "can_manage_groups": False,
+    "can_view_members": False,
     "can_manage_events": False,
     "can_record_attendance": False,
     "can_send_messages": False,
     "can_manage_google_calendar": False,
+    "can_view_directory": False,
+    "can_self_edit_profile": False,
 }
 
 
@@ -45,21 +63,96 @@ def get_organization_capabilities(user, organization: Organization) -> dict[str,
     return get_membership_capabilities(membership)
 
 
+def has_capability(user, organization: Organization, capability: str) -> bool:
+    return get_organization_capabilities(user, organization).get(capability, False)
+
+
+def require_capability(
+    user,
+    organization: Organization,
+    capability: str,
+    message: str,
+) -> None:
+    if not has_capability(user, organization, capability):
+        raise PermissionDenied(message)
+
+
 def can_manage_members(user, organization: Organization) -> bool:
-    return get_organization_capabilities(user, organization)["can_manage_members"]
+    return has_capability(user, organization, "can_manage_members")
+
+
+def can_manage_groups(user, organization: Organization) -> bool:
+    return has_capability(user, organization, "can_manage_groups")
+
+
+def can_view_members(user, organization: Organization) -> bool:
+    return has_capability(user, organization, "can_view_members")
 
 
 def can_manage_events(user, organization: Organization) -> bool:
-    return get_organization_capabilities(user, organization)["can_manage_events"]
+    return has_capability(user, organization, "can_manage_events")
 
 
 def can_record_attendance(user, organization: Organization) -> bool:
-    return get_organization_capabilities(user, organization)["can_record_attendance"]
+    return has_capability(user, organization, "can_record_attendance")
 
 
 def can_send_messages(user, organization: Organization) -> bool:
-    return get_organization_capabilities(user, organization)["can_send_messages"]
+    return has_capability(user, organization, "can_send_messages")
 
 
 def can_manage_google_calendar(user, organization: Organization) -> bool:
-    return get_organization_capabilities(user, organization)["can_manage_google_calendar"]
+    return has_capability(user, organization, "can_manage_google_calendar")
+
+
+def can_view_directory(user, organization: Organization) -> bool:
+    return has_capability(user, organization, "can_view_directory")
+
+
+def can_self_edit_profile(user, organization: Organization) -> bool:
+    return has_capability(user, organization, "can_self_edit_profile")
+
+
+def require_can_manage_members(user, organization: Organization) -> None:
+    require_capability(
+        user,
+        organization,
+        "can_manage_members",
+        "You cannot manage members in this organization.",
+    )
+
+
+def require_can_manage_groups(user, organization: Organization) -> None:
+    require_capability(
+        user,
+        organization,
+        "can_manage_groups",
+        "You cannot manage groups in this organization.",
+    )
+
+
+def require_can_view_members(user, organization: Organization) -> None:
+    require_capability(
+        user,
+        organization,
+        "can_view_members",
+        "You cannot view member records in this organization.",
+    )
+
+
+def require_can_view_directory(user, organization: Organization) -> None:
+    require_capability(
+        user,
+        organization,
+        "can_view_directory",
+        "You cannot view the directory in this organization.",
+    )
+
+
+def require_can_self_edit_profile(user, organization: Organization) -> None:
+    require_capability(
+        user,
+        organization,
+        "can_self_edit_profile",
+        "You cannot edit your profile in this organization.",
+    )

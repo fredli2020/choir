@@ -35,7 +35,11 @@ class OrganizationMembershipSerializer(serializers.ModelSerializer):
 
 class OrganizationPermissionSerializer(serializers.Serializer):
     can_manage_members = serializers.BooleanField()
+    can_manage_groups = serializers.BooleanField()
+    can_view_members = serializers.BooleanField()
     can_manage_events = serializers.BooleanField()
     can_record_attendance = serializers.BooleanField()
     can_send_messages = serializers.BooleanField()
     can_manage_google_calendar = serializers.BooleanField()
+    can_view_directory = serializers.BooleanField()
+    can_self_edit_profile = serializers.BooleanField()

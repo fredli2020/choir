@@ -19,11 +19,13 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_filters",
     "rest_framework",
     "apps.common",
     "apps.core",
     "apps.accounts",
     "apps.organizations",
+    "apps.members",
     "apps.permissions",
     "apps.health",
 ]
