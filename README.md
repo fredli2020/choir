@@ -29,6 +29,13 @@ The current MVP covers:
 - `pnpm`
 - Docker / Docker Compose
 
+## Clone
+
+```bash
+git clone https://github.com/<your-account>/choir.git
+cd choir
+```
+
 ## Quick Start
 
 1. Copy env files:
@@ -205,6 +212,70 @@ Everything:
 make check
 ```
 
+## Git And GitHub
+
+### Recommended branch strategy
+
+For a solo developer, keep it simple:
+
+- `main`: always releasable
+- short-lived feature branches from `main`
+- merge or rebase back into `main` quickly
+
+Suggested branch names:
+
+- `feat/communications-ui`
+- `fix/calendar-sync-error-copy`
+- `chore/repo-cleanup`
+
+### Recommended commit style
+
+Use a lightweight conventional style:
+
+- `feat: add announcement compose UI`
+- `fix: handle expired google refresh token`
+- `docs: expand local setup notes`
+- `chore: tighten gitignore and hooks`
+- `refactor: simplify event audience validation`
+
+This is enough structure for good history without adding ceremony.
+
+### Recommended release tags
+
+Use lightweight semver tags:
+
+- `v0.1.0-mvp`
+- `v0.1.1`
+- `v0.2.0`
+
+Use:
+
+```bash
+git tag -a v0.1.0-mvp -m "MVP release"
+git push origin v0.1.0-mvp
+```
+
+### Optional pre-commit hooks
+
+This repo includes a small `.pre-commit-config.yaml` for:
+
+- merge-conflict detection
+- trailing whitespace / EOF fixes
+- YAML validation
+- backend Ruff format + Ruff check
+
+Install locally:
+
+```bash
+make pre-commit-install
+```
+
+Run manually:
+
+```bash
+make pre-commit-run
+```
+
 ## CI
 
 GitHub Actions runs:
@@ -214,4 +285,3 @@ GitHub Actions runs:
 - pytest
 - frontend lint
 - frontend typecheck
-

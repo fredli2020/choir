@@ -1,0 +1,22 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-merge-conflict
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: mixed-line-ending
+      - id: check-yaml
+
+  - repo: local
+    hooks:
+      - id: ruff-format-api
+        name: Ruff format (API)
+        entry: bash -lc 'cd apps/api && UV_CACHE_DIR=/tmp/uv-cache uv run ruff format .'
+        language: system
+        pass_filenames: false
+      - id: ruff-check-api
+        name: Ruff check (API)
+        entry: bash -lc 'cd apps/api && UV_CACHE_DIR=/tmp/uv-cache uv run ruff check .'
+        language: system
+        pass_filenames: false

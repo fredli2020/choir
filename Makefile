@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: help install setup db-up db-down db-logs api-install web-install api-migrate api-makemigrations api-makemigrations-check api-seed api-check api-dev web-dev api-test api-lint api-format-check web-lint web-typecheck web-check check
+.PHONY: help install setup db-up db-down db-logs api-install web-install api-migrate api-makemigrations api-makemigrations-check api-seed api-check api-dev web-dev api-test api-lint api-format-check web-lint web-typecheck web-check pre-commit-install pre-commit-run check
 
 help:
 	@printf "\nChoir App commands:\n"
@@ -13,6 +13,8 @@ help:
 	@printf "  make web-dev                  Start Next.js dev server\n"
 	@printf "  make api-check                Run backend checks\n"
 	@printf "  make web-check                Run frontend checks\n"
+	@printf "  make pre-commit-install       Install local Git hooks\n"
+	@printf "  make pre-commit-run           Run pre-commit on all files\n"
 	@printf "  make check                    Run all checks\n\n"
 
 setup:
@@ -72,5 +74,11 @@ web-typecheck:
 api-check: api-makemigrations-check api-lint api-format-check api-test
 
 web-check: web-lint web-typecheck
+
+pre-commit-install:
+	uvx pre-commit install
+
+pre-commit-run:
+	uvx pre-commit run --all-files
 
 check: api-check web-check
