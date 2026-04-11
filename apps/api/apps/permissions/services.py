@@ -218,6 +218,15 @@ def require_can_view_directory(user, organization: Organization) -> None:
     )
 
 
+def require_can_send_messages(user, organization: Organization) -> None:
+    require_capability(
+        user,
+        organization,
+        "can_send_messages",
+        "You cannot manage communications in this organization.",
+    )
+
+
 def require_can_self_edit_profile(user, organization: Organization) -> None:
     require_capability(
         user,

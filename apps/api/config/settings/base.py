@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     "apps.organizations",
     "apps.members",
     "apps.events",
+    "apps.communications",
     "apps.permissions",
     "apps.health",
 ]
@@ -89,6 +90,10 @@ AUTH_USER_MODEL = "accounts.User"
 CLERK_JWKS_URL = get_optional_env("CLERK_JWKS_URL")
 CLERK_ISSUER = get_optional_env("CLERK_ISSUER")
 CLERK_AUDIENCE = get_optional_env("CLERK_AUDIENCE")
+
+COMMUNICATIONS_EMAIL_PROVIDER = get_env("COMMUNICATIONS_EMAIL_PROVIDER", "resend")
+RESEND_API_KEY = get_optional_env("RESEND_API_KEY")
+DEFAULT_FROM_EMAIL = get_env("DEFAULT_FROM_EMAIL", "Choir App <noreply@example.com>")
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [

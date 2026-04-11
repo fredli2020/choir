@@ -1,0 +1,74 @@
+from django.urls import path
+
+from apps.communications.views import (
+    AnnouncementAudienceView,
+    AnnouncementDetailView,
+    AnnouncementFeedDetailView,
+    AnnouncementFeedView,
+    AnnouncementListCreateView,
+    AnnouncementPublishView,
+    MessageCampaignAudienceView,
+    MessageCampaignDetailView,
+    MessageCampaignListCreateView,
+    MessageCampaignResultsView,
+    MessageCampaignSendView,
+)
+
+urlpatterns = [
+    path(
+        "orgs/<uuid:org_id>/announcements",
+        AnnouncementListCreateView.as_view(),
+        name="announcement-list",
+    ),
+    path(
+        "orgs/<uuid:org_id>/announcements/feed",
+        AnnouncementFeedView.as_view(),
+        name="announcement-feed",
+    ),
+    path(
+        "orgs/<uuid:org_id>/announcements/feed/<uuid:announcement_id>",
+        AnnouncementFeedDetailView.as_view(),
+        name="announcement-feed-detail",
+    ),
+    path(
+        "orgs/<uuid:org_id>/announcements/<uuid:announcement_id>",
+        AnnouncementDetailView.as_view(),
+        name="announcement-detail",
+    ),
+    path(
+        "orgs/<uuid:org_id>/announcements/<uuid:announcement_id>/audience",
+        AnnouncementAudienceView.as_view(),
+        name="announcement-audience",
+    ),
+    path(
+        "orgs/<uuid:org_id>/announcements/<uuid:announcement_id>/publish",
+        AnnouncementPublishView.as_view(),
+        name="announcement-publish",
+    ),
+    path(
+        "orgs/<uuid:org_id>/campaigns",
+        MessageCampaignListCreateView.as_view(),
+        name="campaign-list",
+    ),
+    path(
+        "orgs/<uuid:org_id>/campaigns/<uuid:campaign_id>",
+        MessageCampaignDetailView.as_view(),
+        name="campaign-detail",
+    ),
+    path(
+        "orgs/<uuid:org_id>/campaigns/<uuid:campaign_id>/audience",
+        MessageCampaignAudienceView.as_view(),
+        name="campaign-audience",
+    ),
+    path(
+        "orgs/<uuid:org_id>/campaigns/<uuid:campaign_id>/send",
+        MessageCampaignSendView.as_view(),
+        name="campaign-send",
+    ),
+    path(
+        "orgs/<uuid:org_id>/campaigns/<uuid:campaign_id>/results",
+        MessageCampaignResultsView.as_view(),
+        name="campaign-results",
+    ),
+]
+

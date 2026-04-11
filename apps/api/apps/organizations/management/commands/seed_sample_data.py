@@ -6,6 +6,11 @@ from django.db import transaction
 from django.utils import timezone
 
 from apps.accounts.models import User
+from apps.communications.models import Announcement, MessageCampaign, MessageRecipient
+from apps.communications.services import (
+    prepare_message_campaign_recipients,
+    replace_announcement_audience,
+)
 from apps.events.models import RSVP, AttendanceRecord, Event
 from apps.events.services import replace_event_audience
 from apps.members.models import Group, GroupMember, MemberProfile
@@ -347,8 +352,104 @@ class Command(BaseCommand):
                 },
             )
 
+        announcement_rows = [
+            {
+                "title": "Spring Schedule Update",
+                "body": "Sunday call time moves to 9:15 AM for the next three weeks.",
+                "published": True,
+                "audience": {"audience_type": "all_members"},
+            },
+            {
+                "title": "Committee Planning Notes",
+                "body": "Draft agenda for the worship planning committee review.",
+                "published": False,
+                "audience": {
+                    "audience_type": "group",
+                    "group_id": seeded_groups["Worship Planning Committee"].id,
+                },
+            },
+        ]
+
+        for row in announcement_rows:
+            announcement, _ = Announcement.objects.update_or_create(
+                organization=organization,
+                title=row["title"],
+                defaults={
+                    "body": row["body"],
+                    "published": False,
+                    "published_at": None,
+                    "created_by_user": seeded_users["admin@example.com"],
+                },
+            )
+            replace_announcement_audience(announcement, row["audience"])
+            announcement.body = row["body"]
+            announcement.published = row["published"]
+            announcement.published_at = timezone.now() if row["published"] else None
+            announcement.save(update_fields=["body", "published", "published_at", "updated_at"])
+
+        draft_campaign, _ = MessageCampaign.objects.update_or_create(
+            organization=organization,
+            subject="Volunteer Sign-Up Reminder",
+            defaults={
+                "body": "Please confirm whether you can help with setup before rehearsal.",
+                "audience_description": None,
+                "status": MessageCampaign.Status.DRAFT,
+                "sent_at": None,
+                "created_by_user": seeded_users["admin@example.com"],
+            },
+        )
+        draft_campaign.status = MessageCampaign.Status.DRAFT
+        draft_campaign.sent_at = None
+        draft_campaign.save(update_fields=["status", "sent_at", "updated_at"])
+        prepare_message_campaign_recipients(
+            draft_campaign,
+            {
+                "audience_type": "group",
+                "group_id": seeded_groups["Chamber Ensemble"].id,
+            },
+        )
+
+        sent_campaign, _ = MessageCampaign.objects.update_or_create(
+            organization=organization,
+            subject="Concert Week Logistics",
+            defaults={
+                "body": "Arrival, attire, and warmup details for concert week.",
+                "audience_description": "Selected members (2)",
+                "status": MessageCampaign.Status.SENT,
+                "sent_at": timezone.now(),
+                "created_by_user": seeded_users["admin@example.com"],
+            },
+        )
+        sent_campaign.body = "Arrival, attire, and warmup details for concert week."
+        sent_campaign.audience_description = "Selected members (2)"
+        sent_campaign.status = MessageCampaign.Status.SENT
+        sent_campaign.sent_at = timezone.now()
+        sent_campaign.save(
+            update_fields=["body", "audience_description", "status", "sent_at", "updated_at"]
+        )
+        MessageRecipient.objects.filter(message_campaign=sent_campaign).delete()
+        MessageRecipient.objects.bulk_create(
+            [
+                MessageRecipient(
+                    message_campaign=sent_campaign,
+                    member_profile=seeded_member_profiles["member@example.com"],
+                    email=seeded_member_profiles["member@example.com"].email,
+                    delivery_status=MessageRecipient.DeliveryStatus.SENT,
+                    error=None,
+                ),
+                MessageRecipient(
+                    message_campaign=sent_campaign,
+                    member_profile=seeded_member_profiles["nina.alto@example.com"],
+                    email=seeded_member_profiles["nina.alto@example.com"].email,
+                    delivery_status=MessageRecipient.DeliveryStatus.SENT,
+                    error=None,
+                ),
+            ]
+        )
+
         self.stdout.write(
             self.style.SUCCESS(
-                "Seeded sample organization with profiles, groups, events, RSVPs, and attendance."
+                "Seeded sample organization with profiles, groups, events, "
+                "announcements, campaigns, RSVPs, and attendance."
             )
         )
