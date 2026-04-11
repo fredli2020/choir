@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import {
+  CalendarSync,
   CalendarRange,
   FolderKanban,
   LayoutDashboard,
@@ -62,6 +63,12 @@ export function AppShell({ children, currentUser, context, organizations }: AppS
       label: "My profile",
       icon: <UserCircle2 className="h-4 w-4" />,
       visible: permissions.can_self_edit_profile,
+    },
+    {
+      href: `/app/${organization.id}/settings/google-calendar`,
+      label: "Calendar sync",
+      icon: <CalendarSync className="h-4 w-4" />,
+      visible: permissions.can_manage_google_calendar,
     },
   ].filter((item) => item.visible);
 

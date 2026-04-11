@@ -6,6 +6,8 @@ import type {
   CurrentUserContext,
   DirectoryMember,
   EventRecord,
+  GoogleCalendarChoice,
+  GoogleCalendarConnectionStatus,
   Group,
   MemberProfile,
   MyEventResponse,
@@ -107,4 +109,19 @@ export async function getMyEventResponses(token: string, organizationId: string)
   return apiFetch<MyEventResponse[]>(`/api/orgs/${organizationId}/events/my-responses`, {
     token,
   });
+}
+
+export async function getGoogleCalendarConnectionStatus(token: string, organizationId: string) {
+  return apiFetch<GoogleCalendarConnectionStatus>(
+    `/api/orgs/${organizationId}/integrations/google-calendar`,
+    { token },
+  );
+}
+
+export async function getGoogleCalendars(token: string, organizationId: string) {
+  const payload = await apiFetch<{ calendars: GoogleCalendarChoice[] }>(
+    `/api/orgs/${organizationId}/integrations/google-calendar/calendars`,
+    { token },
+  );
+  return payload.calendars;
 }

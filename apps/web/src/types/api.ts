@@ -151,6 +151,12 @@ export type CurrentMemberRsvp = {
   updated_at: string | null;
 };
 
+export type GoogleCalendarSyncStatus = {
+  status: "not_synced" | "linked" | "synced" | "failed";
+  last_synced_at: string | null;
+  error: string | null;
+};
+
 export type EventRecord = {
   id: Uuid;
   organization_id: Uuid;
@@ -163,6 +169,7 @@ export type EventRecord = {
   timezone: string;
   is_all_day: boolean;
   google_calendar_event_id: string | null;
+  google_calendar_sync: GoogleCalendarSyncStatus;
   created_by_user_id: Uuid | null;
   audience: EventAudience;
   rsvp_summary: EventRsvpSummary;
@@ -178,4 +185,22 @@ export type MyEventResponse = {
   note: string | null;
   responded_at: string | null;
   updated_at: string | null;
+};
+
+export type GoogleCalendarConnectionStatus = {
+  oauth_configured: boolean;
+  connected: boolean;
+  google_account_email: string | null;
+  calendar_id: string | null;
+  token_expiry: string | null;
+  last_sync_error: string | null;
+  last_sync_error_at: string | null;
+  last_calendar_sync_at: string | null;
+};
+
+export type GoogleCalendarChoice = {
+  id: string;
+  summary: string;
+  primary: boolean;
+  access_role: string | null;
 };

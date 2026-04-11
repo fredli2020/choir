@@ -227,6 +227,15 @@ def require_can_send_messages(user, organization: Organization) -> None:
     )
 
 
+def require_can_manage_google_calendar(user, organization: Organization) -> None:
+    require_capability(
+        user,
+        organization,
+        "can_manage_google_calendar",
+        "You cannot manage Google Calendar in this organization.",
+    )
+
+
 def require_can_self_edit_profile(user, organization: Organization) -> None:
     require_capability(
         user,

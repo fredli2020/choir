@@ -8,6 +8,7 @@ from apps.events.services import (
     get_linked_active_member_profile,
     get_member_event_rsvp,
 )
+from apps.integrations.google_calendar.services import get_event_google_calendar_sync_status
 from apps.members.models import Group, MemberProfile
 
 
@@ -110,6 +111,7 @@ class EventReadSerializer(serializers.ModelSerializer):
     rsvp_summary = serializers.SerializerMethodField()
     attendance_summary = serializers.SerializerMethodField()
     my_rsvp = serializers.SerializerMethodField()
+    google_calendar_sync = serializers.SerializerMethodField()
 
     class Meta:
         model = Event
@@ -125,6 +127,7 @@ class EventReadSerializer(serializers.ModelSerializer):
             "timezone",
             "is_all_day",
             "google_calendar_event_id",
+            "google_calendar_sync",
             "created_by_user_id",
             "audience",
             "rsvp_summary",
@@ -167,6 +170,9 @@ class EventReadSerializer(serializers.ModelSerializer):
                 "updated_at": rsvp.updated_at,
             }
         ).data
+
+    def get_google_calendar_sync(self, obj):
+        return get_event_google_calendar_sync_status(obj)
 
 
 class RSVPUpsertSerializer(serializers.Serializer):

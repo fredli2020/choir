@@ -29,6 +29,8 @@ class Event(UUIDTimeStampedModel):
     timezone = models.CharField(max_length=64)
     is_all_day = models.BooleanField(default=False)
     google_calendar_event_id = models.CharField(max_length=255, null=True, blank=True)
+    google_calendar_last_synced_at = models.DateTimeField(null=True, blank=True)
+    google_calendar_sync_error = models.TextField(null=True, blank=True)
     created_by_user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,

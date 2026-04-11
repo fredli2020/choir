@@ -9,6 +9,10 @@ from django.utils import timezone
 
 from apps.events.filters import EventFilterSet
 from apps.events.models import RSVP, AttendanceRecord, Event, EventAudience
+from apps.integrations.google_calendar.services import (
+    sync_deleted_event_to_google_calendar,
+    sync_event_to_google_calendar,
+)
 from apps.members.models import Group, MemberProfile
 from apps.organizations.models import Organization
 from apps.permissions.services import can_view_events
@@ -270,7 +274,7 @@ def replace_event_audience(event: Event, audience_data: dict) -> Event:
 
 
 @transaction.atomic
-def create_event(organization: Organization, created_by_user, data: dict) -> Event:
+def _create_event_local(organization: Organization, created_by_user, data: dict) -> Event:
     payload = data.copy()
     audience_data = payload.pop("audience")
     event_fields = _prepare_event_fields(payload)
@@ -284,7 +288,7 @@ def create_event(organization: Organization, created_by_user, data: dict) -> Eve
 
 
 @transaction.atomic
-def update_event(event: Event, data: dict) -> Event:
+def _update_event_local(event: Event, data: dict) -> Event:
     payload = data.copy()
     audience_data = payload.pop("audience", None)
     merged_fields = {
@@ -311,8 +315,31 @@ def update_event(event: Event, data: dict) -> Event:
 
 
 @transaction.atomic
-def delete_event(event: Event) -> None:
+def _delete_event_local(event: Event) -> dict:
+    snapshot = {
+        "organization": event.organization,
+        "google_calendar_event_id": event.google_calendar_event_id,
+    }
     event.delete()
+    return snapshot
+
+
+def create_event(organization: Organization, created_by_user, data: dict) -> Event:
+    event = _create_event_local(organization, created_by_user, data)
+    return sync_event_to_google_calendar(event)
+
+
+def update_event(event: Event, data: dict) -> Event:
+    event = _update_event_local(event, data)
+    return sync_event_to_google_calendar(event)
+
+
+def delete_event(event: Event) -> None:
+    snapshot = _delete_event_local(event)
+    sync_deleted_event_to_google_calendar(
+        organization=snapshot["organization"],
+        google_calendar_event_id=snapshot["google_calendar_event_id"],
+    )
 
 
 def get_event_audience_summary(event: Event) -> dict:

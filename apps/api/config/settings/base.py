@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     "apps.members",
     "apps.events",
     "apps.communications",
+    "apps.integrations.google_calendar",
     "apps.permissions",
     "apps.health",
 ]
@@ -94,6 +95,16 @@ CLERK_AUDIENCE = get_optional_env("CLERK_AUDIENCE")
 COMMUNICATIONS_EMAIL_PROVIDER = get_env("COMMUNICATIONS_EMAIL_PROVIDER", "resend")
 RESEND_API_KEY = get_optional_env("RESEND_API_KEY")
 DEFAULT_FROM_EMAIL = get_env("DEFAULT_FROM_EMAIL", "Choir App <noreply@example.com>")
+WEB_APP_BASE_URL = get_env("WEB_APP_BASE_URL", "http://127.0.0.1:3000")
+GOOGLE_OAUTH_CLIENT_ID = get_optional_env("GOOGLE_OAUTH_CLIENT_ID")
+GOOGLE_OAUTH_CLIENT_SECRET = get_optional_env("GOOGLE_OAUTH_CLIENT_SECRET")
+GOOGLE_OAUTH_REDIRECT_URI = get_optional_env("GOOGLE_OAUTH_REDIRECT_URI")
+GOOGLE_OAUTH_SCOPES = get_csv(
+    "GOOGLE_OAUTH_SCOPES",
+    ["openid", "email", "https://www.googleapis.com/auth/calendar"],
+)
+GOOGLE_OAUTH_STATE_TTL_SECONDS = int(get_env("GOOGLE_OAUTH_STATE_TTL_SECONDS", "900"))
+GOOGLE_TOKEN_ENCRYPTION_KEY = get_optional_env("GOOGLE_TOKEN_ENCRYPTION_KEY")
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [

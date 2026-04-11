@@ -104,6 +104,11 @@ export default async function EventsPage({ params, searchParams }: PageProps) {
                     <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-foreground/70">
                       RSVP {event.my_rsvp?.status ?? "no_response"}
                     </span>
+                    {permissions.can_manage_google_calendar ? (
+                      <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-foreground/70">
+                        Google {event.google_calendar_sync.status}
+                      </span>
+                    ) : null}
                   </div>
                 </div>
                 <div className="mt-4 grid gap-3 text-sm text-foreground/76 md:grid-cols-2">
@@ -114,6 +119,11 @@ export default async function EventsPage({ params, searchParams }: PageProps) {
                     Attendance: {event.attendance_summary.present} present · {event.attendance_summary.total_recorded}/{event.attendance_summary.total_targeted} recorded
                   </p>
                 </div>
+                {permissions.can_manage_google_calendar && event.google_calendar_sync.error ? (
+                  <p className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
+                    Google Calendar sync issue: {event.google_calendar_sync.error}
+                  </p>
+                ) : null}
               </article>
             ))}
             {events.length === 0 ? (

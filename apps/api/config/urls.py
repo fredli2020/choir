@@ -9,4 +9,5 @@ urlpatterns = [
     path("api/", include("apps.members.urls")),
     path("api/", include("apps.events.urls")),
     path("api/", include("apps.communications.urls")),
+    path("api/", include("apps.integrations.google_calendar.urls")),
 ]
