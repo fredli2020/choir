@@ -151,4 +151,3 @@ class MessageRecipient(UUIDTimeStampedModel):
 
     def __str__(self) -> str:
         return f"{self.email} for {self.message_campaign}"
-

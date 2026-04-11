@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('events', '0001_initial'),
+        ("events", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='event',
-            name='google_calendar_last_synced_at',
+            model_name="event",
+            name="google_calendar_last_synced_at",
             field=models.DateTimeField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='event',
-            name='google_calendar_sync_error',
+            model_name="event",
+            name="google_calendar_sync_error",
             field=models.TextField(blank=True, null=True),
         ),
     ]

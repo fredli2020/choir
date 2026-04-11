@@ -9,4 +9,3 @@ class MessageCampaignFilterSet(filters.FilterSet):
     class Meta:
         model = MessageCampaign
         fields = ["status"]
-

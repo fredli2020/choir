@@ -144,8 +144,7 @@ def test_send_message_campaign_marks_partial_failures(
     assert updated_campaign.status == MessageCampaign.Status.FAILED
     recipients = {recipient.email: recipient for recipient in updated_campaign.recipients.all()}
     assert (
-        recipients[member_profile.email].delivery_status
-        == MessageRecipient.DeliveryStatus.FAILED
+        recipients[member_profile.email].delivery_status == MessageRecipient.DeliveryStatus.FAILED
     )
     assert recipients[member_profile.email].error == "Mailbox rejected the message."
     assert (

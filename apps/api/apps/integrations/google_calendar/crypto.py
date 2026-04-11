@@ -19,4 +19,3 @@ def encrypt_token(value: str) -> str:
 
 def decrypt_token(value: str) -> str:
     return _get_fernet().decrypt(value.encode("utf-8")).decode("utf-8")
-

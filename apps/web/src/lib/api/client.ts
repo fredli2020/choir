@@ -13,6 +13,40 @@ export class ApiClientError extends Error {
   }
 }
 
+function extractErrorDetail(payload: unknown): string | null {
+  if (payload == null) {
+    return null;
+  }
+
+  if (typeof payload === "string") {
+    return payload;
+  }
+
+  if (typeof payload !== "object") {
+    return null;
+  }
+
+  const record = payload as Record<string, unknown>;
+  const detail = record.detail;
+  if (typeof detail === "string" && detail) {
+    return detail;
+  }
+
+  for (const [key, value] of Object.entries(record)) {
+    if (Array.isArray(value) && value.length > 0) {
+      const first = value[0];
+      if (typeof first === "string" && first) {
+        return `${key}: ${first}`;
+      }
+    }
+    if (typeof value === "string" && value) {
+      return `${key}: ${value}`;
+    }
+  }
+
+  return null;
+}
+
 function buildUrl(path: string, searchParams?: Record<string, SearchValue>) {
   const url = new URL(path, appConfig.apiBaseUrl);
 
@@ -56,9 +90,10 @@ export async function apiFetch<T>(path: string, init?: ApiFetchOptions): Promise
     let detail = `Request to ${url} failed with ${response.status}.`;
 
     try {
-      const payload = (await response.json()) as { detail?: string };
-      if (payload.detail) {
-        detail = payload.detail;
+      const payload = (await response.json()) as unknown;
+      const extracted = extractErrorDetail(payload);
+      if (extracted) {
+        detail = extracted;
       }
     } catch {
       // Keep the fallback message when the response is not JSON.

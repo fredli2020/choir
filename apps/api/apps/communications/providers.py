@@ -66,13 +66,10 @@ def get_email_provider() -> BaseEmailProvider:
     provider_name = settings.COMMUNICATIONS_EMAIL_PROVIDER
     if provider_name == "resend":
         if not settings.RESEND_API_KEY:
-            raise EmailProviderError(
-                "RESEND_API_KEY must be configured to send message campaigns."
-            )
+            raise EmailProviderError("RESEND_API_KEY must be configured to send message campaigns.")
         return ResendEmailProvider(
             api_key=settings.RESEND_API_KEY,
             from_email=settings.DEFAULT_FROM_EMAIL,
         )
 
     raise EmailProviderError(f"Unsupported email provider: {provider_name}")
-

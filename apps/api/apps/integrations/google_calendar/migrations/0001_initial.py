@@ -8,34 +8,54 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('organizations', '0001_initial'),
+        ("organizations", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='GoogleCalendarConnection',
+            name="GoogleCalendarConnection",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('google_account_email', models.EmailField(max_length=254)),
-                ('access_token', models.TextField()),
-                ('refresh_token', models.TextField()),
-                ('token_expiry', models.DateTimeField(blank=True, null=True)),
-                ('calendar_id', models.CharField(blank=True, max_length=255, null=True)),
-                ('last_sync_error', models.TextField(blank=True, null=True)),
-                ('last_sync_error_at', models.DateTimeField(blank=True, null=True)),
-                ('last_calendar_sync_at', models.DateTimeField(blank=True, null=True)),
-                ('connected_by_user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='google_calendar_connections', to=settings.AUTH_USER_MODEL)),
-                ('organization', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='google_calendar_connection', to='organizations.organization')),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4, editable=False, primary_key=True, serialize=False
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("google_account_email", models.EmailField(max_length=254)),
+                ("access_token", models.TextField()),
+                ("refresh_token", models.TextField()),
+                ("token_expiry", models.DateTimeField(blank=True, null=True)),
+                ("calendar_id", models.CharField(blank=True, max_length=255, null=True)),
+                ("last_sync_error", models.TextField(blank=True, null=True)),
+                ("last_sync_error_at", models.DateTimeField(blank=True, null=True)),
+                ("last_calendar_sync_at", models.DateTimeField(blank=True, null=True)),
+                (
+                    "connected_by_user",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="google_calendar_connections",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "organization",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="google_calendar_connection",
+                        to="organizations.organization",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['organization__name'],
+                "ordering": ["organization__name"],
             },
         ),
     ]

@@ -45,4 +45,3 @@ class GoogleCalendarConnection(UUIDTimeStampedModel):
 
     def get_refresh_token(self) -> str:
         return decrypt_token(self.refresh_token)
-

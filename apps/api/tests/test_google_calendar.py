@@ -10,6 +10,7 @@ from apps.integrations.google_calendar.models import GoogleCalendarConnection
 from apps.integrations.google_calendar.services import (
     build_google_oauth_authorization_url,
     connect_google_calendar_with_oauth_code,
+    handle_google_oauth_callback,
     list_google_calendars,
 )
 
@@ -19,10 +20,7 @@ class FakeGoogleCalendarClient:
         self.refreshed = False
 
     def build_authorization_url(self, *, state: str) -> str:
-        return (
-            "https://accounts.google.com/o/oauth2/v2/auth"
-            f"?client_id=test-client&state={state}"
-        )
+        return f"https://accounts.google.com/o/oauth2/v2/auth?client_id=test-client&state={state}"
 
     def exchange_code_for_tokens(self, *, code: str) -> OAuthTokens:
         assert code == "oauth-code"
@@ -149,6 +147,18 @@ def test_member_cannot_access_google_calendar_status(api_client, member_user, me
 
 
 @pytest.mark.django_db
+def test_google_oauth_callback_with_invalid_state_redirects_to_safe_error():
+    redirect_url = handle_google_oauth_callback(code="oauth-code", state="invalid-state")
+
+    parsed = urlparse(redirect_url)
+    query = parse_qs(parsed.query)
+
+    assert parsed.path == "/app"
+    assert query["google_calendar"] == ["error"]
+    assert query["detail"] == ["invalid_state"]
+
+
+@pytest.mark.django_db
 def test_event_create_syncs_to_google_calendar_when_connection_is_selected(
     api_client,
     admin_user,
@@ -178,15 +188,15 @@ def test_event_create_syncs_to_google_calendar_when_connection_is_selected(
     response = api_client.post(
         f"/api/orgs/{admin_membership.organization_id}/events",
         {
-          "title": "Synced Rehearsal",
-          "description": "Push to Google Calendar",
-          "type": Event.Type.REHEARSAL,
-          "location": "Choir Room",
-          "start_at": now.isoformat(),
-          "end_at": (now + timedelta(hours=2)).isoformat(),
-          "timezone": "America/New_York",
-          "is_all_day": False,
-          "audience": {"audience_type": EventAudience.AudienceType.ALL_MEMBERS},
+            "title": "Synced Rehearsal",
+            "description": "Push to Google Calendar",
+            "type": Event.Type.REHEARSAL,
+            "location": "Choir Room",
+            "start_at": now.isoformat(),
+            "end_at": (now + timedelta(hours=2)).isoformat(),
+            "timezone": "America/New_York",
+            "is_all_day": False,
+            "audience": {"audience_type": EventAudience.AudienceType.ALL_MEMBERS},
         },
         format="json",
     )

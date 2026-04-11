@@ -134,8 +134,13 @@ def connect_google_calendar_with_oauth_code(
     client = client or get_google_calendar_client()
     state_payload = _load_oauth_state(state)
 
+    try:
+        user = User.objects.get(id=state_payload["user_id"])
+    except User.DoesNotExist as exc:
+        raise PermissionDenied("The original user is no longer available.") from exc
+
     membership = get_active_membership_for_org_id(
-        user=User.objects.get(id=state_payload["user_id"]),
+        user=user,
         organization_id=state_payload["org_id"],
     )
     if membership is None or not can_manage_google_calendar(
@@ -218,13 +223,13 @@ def handle_google_oauth_callback(
 
     try:
         connect_google_calendar_with_oauth_code(code=code, state=state, client=client)
-    except Exception as exc:
+    except Exception:
         logger.exception("Google OAuth callback failed for organization %s", organization_id)
         return _build_callback_redirect_url(
             redirect_path=redirect_path,
             organization_id=organization_id,
             success=False,
-            detail=str(exc),
+            detail="oauth_callback_failed",
         )
 
     return _build_callback_redirect_url(

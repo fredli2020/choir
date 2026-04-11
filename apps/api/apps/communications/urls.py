@@ -71,4 +71,3 @@ urlpatterns = [
         name="campaign-results",
     ),
 ]
-

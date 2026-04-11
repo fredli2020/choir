@@ -185,9 +185,11 @@ def _get_announcement_targeted_members_queryset(announcement: Announcement):
         )
 
     member_ids = [row.member_profile_id for row in audience_rows if row.member_profile_id]
-    return _active_member_profiles_queryset(announcement.organization).filter(
-        id__in=member_ids
-    ).order_by("last_name", "first_name", "email")
+    return (
+        _active_member_profiles_queryset(announcement.organization)
+        .filter(id__in=member_ids)
+        .order_by("last_name", "first_name", "email")
+    )
 
 
 def get_announcement_targeted_members(announcement: Announcement) -> list[MemberProfile]:
@@ -272,9 +274,7 @@ def get_published_announcement_for_user(
 
 def _ensure_announcement_is_editable(announcement: Announcement) -> None:
     if announcement.published:
-        raise ValidationError(
-            {"announcement": ["Published announcements cannot be edited."]}
-        )
+        raise ValidationError({"announcement": ["Published announcements cannot be edited."]})
 
 
 @transaction.atomic
@@ -362,9 +362,7 @@ def get_message_campaign(organization: Organization, campaign_id) -> MessageCamp
 
 def _ensure_campaign_is_editable(campaign: MessageCampaign) -> None:
     if campaign.status != MessageCampaign.Status.DRAFT:
-        raise ValidationError(
-            {"campaign": ["Only draft campaigns can be edited or sent."]}
-        )
+        raise ValidationError({"campaign": ["Only draft campaigns can be edited or sent."]})
 
 
 @transaction.atomic

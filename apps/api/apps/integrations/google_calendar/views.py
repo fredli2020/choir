@@ -44,9 +44,7 @@ class GoogleCalendarOAuthStartView(OrganizationScopedAPIView):
         require_can_manage_google_calendar(request.user, organization)
         authorization_url = build_google_oauth_authorization_url(organization, request.user)
         return Response(
-            GoogleCalendarOAuthStartSerializer(
-                {"authorization_url": authorization_url}
-            ).data
+            GoogleCalendarOAuthStartSerializer({"authorization_url": authorization_url}).data
         )
 
 

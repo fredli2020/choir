@@ -41,4 +41,3 @@ urlpatterns = [
         name="google-calendar-disconnect",
     ),
 ]
-

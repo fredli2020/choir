@@ -19,4 +19,3 @@ class GoogleCalendarConnectionAdmin(admin.ModelAdmin):
         "last_calendar_sync_at",
         "last_sync_error_at",
     ]
-
